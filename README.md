@@ -89,3 +89,13 @@ var divs = Getter( 'div' )
 // removes all div elements from the DOM
 divs.remove()
 ```
+
+### .set( propertyName, propertyValue )
+
+sets the property `propertyName` to `propertyValue` for all elements in the instance. Getter checks that the property exists on the first element, then iterates over them all.
+
+```javascript
+var divs = Getter( 'div' )
+
+divs.set( 'innerHTML', 'foo' )
+```
