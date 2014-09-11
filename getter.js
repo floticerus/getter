@@ -172,6 +172,20 @@
 			}
 		}
 
+		function splitClasses( classes, fn )
+		{
+			if ( !Array.isArray( classes ) )
+			{
+				// assume it's a string
+				classes = classes.split( ' ' )
+			}
+
+			for ( var i = 0, l = classes.length; i < l; ++i )
+			{
+				fn( classes[ i ] )
+			}
+		}
+
 		// add class methods to instance
 		// depends on classList being available, polyfill required for older browsers
 		function Getter_classes()
@@ -186,10 +200,14 @@
 					value: {
 						add: function ( className )
 						{
-							for ( var i = 0, classes; i < that.length; ++i )
-							{
-								that[ i ].classList.add( className )
-							}
+							splitClasses( className, function ( cls )
+								{
+									for ( var i = 0, classes; i < that.length; ++i )
+									{
+										that[ i ].classList.add( cls )
+									}
+								}
+							)
 						},
 
 						// only works on the first element in the instance
@@ -200,24 +218,34 @@
 								return false // instance is empty
 							}
 
-							// not chainable, returns boolean
+							// returns boolean
 							return that[ 0 ].classList.contains( className )
 						},
 
 						remove: function ( className )
 						{
-							for ( var i = 0, classes; i < that.length; ++i )
-							{
-								that[ i ].classList.remove( className )
-							}
+							splitClasses( className, function ( cls )
+								{
+									for ( var i = 0, classes; i < that.length; ++i )
+									{
+										that[ i ].classList.remove( cls )
+									}
+								}
+							)
 						},
 
-						toggle: function ( className )
+						// from MDN:
+						// The toggle method has an optional second argument that will force the class name to be added or removed based on the truthiness of the second argument. For example, to remove a class (if it exists or not) you can call element.classList.toggle('classToBeRemoved', false); and to add a class (if it exists or not) you can call element.classList.toggle('classToBeAdded', true);
+						toggle: function ( className, force )
 						{
-							for ( var i = 0, classes; i < that.length; ++i )
-							{
-								that[ i ].classList.toggle( className )
-							}
+							splitClasses( className, function ( cls )
+								{
+									for ( var i = 0, classes; i < that.length; ++i )
+									{
+										that[ i ].classList.toggle( cls, force )
+									}
+								}
+							)
 						}
 					}
 				}

@@ -26,6 +26,48 @@ var divs = $( 'div' )
 
 ## methods
 
+### .classList
+
+the classList object contains methods which map to the native classList methods. relies on some implementation of classList, so older browsers will not work without a polyfill.
+
+##### .add( className )
+
+adds the specified class(es) to all elements in the instance.
+
+```javascript
+// adds foo class to all div elements
+Getter( 'div' ).classList.add( 'foo' )
+```
+
+##### .contains( className )
+
+checks whether the first element in the instance has the specified class.
+
+```javascript
+if ( Getter( '#element' ).classList.contains( 'foo' ) )
+{
+	console.log( 'element has foo class' )
+}
+```
+
+##### .remove( className )
+
+removes the speicified class from all elements in the instance.
+
+```javascript
+// removes foo class from all div elements
+Getter( 'div.foo' ).classList.remove( 'foo' )
+```
+
+##### .toggle( className )
+
+toggles the specified class in all elements in the instance.
+
+```javascript
+// toggles foo class on all div elements
+Getter( 'div' ).classList.toggle( 'foo' )
+```
+
 ### .each( function )
 
 iterates over all elements in the Getter instance, executing a function for each element. `element` and `index` are passed to function.
@@ -40,7 +82,16 @@ divs.each( function ( element, index )
 )
 ```
 
-### .exec( methodName, [ argument1, argument2, etc ] )
+### .eq( index )
+
+attempts to return the element at the provided index in a new Getter instance. if it does not exist, returns a new empty Getter instance. index starts at 0.
+
+```javascript
+// since .eq() is 0 based, 4 is actually the fifth element in the instance
+var fifth = Getter( 'div' ).eq( 4 )
+```
+
+### .exec( methodName, argument1, argument2, etc )
 
 executes a method on each html element in the Getter instance. Getter checks that the method exists on the first element, then iterates over them all, executing the method with the provided arguments. must provide at least methodName. additional arguments are passed to the method.
 
@@ -75,6 +126,35 @@ var divs = Getter( 'div' )
 
 // filter by attribute
 var filtered = divs.filter( '[data-text=needle]' )
+```
+
+### .first()
+
+attempt to return the first element, if it doesn't exist, return original instance. creates a new Getter instance if successful. returns existing instance if unsuccessful.
+
+```javascript
+// returns only the first div
+var div = Getter( 'div' ).first()
+```
+
+### .is( selector )
+
+checks the first element in the instance against the provided CSS selector. returns boolean. does not create a new Getter instance.
+
+```javascript
+if ( Getter( '#foo' ).is( '.inner' ) )
+{
+	console.log( 'has inner class' )
+}
+```
+
+### .last()
+
+attempt to return the last element, if it doesn't exist, return original instance. creates a new Getter instance if successful. returns existing instance if unsuccessful.
+
+```javascript
+// returns only the last div
+var div = Getter( 'div' ).last()
 ```
 
 ### .remove()
