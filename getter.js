@@ -82,9 +82,10 @@
 			LOGGING = !!bool
 		}
 
-		var targets = [
+		// define regular expressions
+		var regexes = [
 			{
-				target: '#',
+				regex: /^#[-A-Za-z0-9_][-A-Za-z0-9_:.]*$/,
 
 				fn: function ( id )
 				{
@@ -102,7 +103,7 @@
 			},
 
 			{
-				target: '.',
+				regex: /^.[-A-Za-z0-9_:.]*$/,
 
 				fn: function ( cls )
 				{
@@ -111,26 +112,25 @@
 			},
 
 			{
-				target: '[',
+				regex: /^[A-Za-z][-A-Za-z0-9_:.]*$/,
 
-				fn: function ( selector )
-				{
-					return DOC.querySelectorAll( selector.substr( 1, selector.length - 1 ) )
-				}
-			},
-
-			{
 				fn: function ( tag )
 				{
 					return DOC.getElementsByTagName( tag )
+				}
+			},
+
+			// no regex needed for querySelectorAll, just put it last
+			{
+				fn: function ( selector )
+				{
+					return DOC.querySelectorAll( selector )
 				}
 			}
 		]
 
 		function Getter_find( selector )
 		{
-			//console.log( selector.appendChild )
-
 			// check for html element
 			if ( selector.appendChild )
 			{
@@ -146,14 +146,16 @@
 
 			for ( var i = 0, current; i < 4; ++i )
 			{
-				current = targets[ i ]
+				current = regexes[ i ]
 
-				if ( current.target && !selector.charAt( 0 ) === current.target )
+				if ( current.regex && !current.regex.test( selector ) )
 				{
 					continue
 				}
 
 				arr = current.fn( selector )
+
+				break
 			}
 
 			for ( var l = arr.length; this.length < l; )
@@ -186,8 +188,6 @@
 			}
 
 			var methodName = Array.prototype.shift.call( args )
-
-			//methodName = ( methodName || '' ).toString()
 
 			if ( this.length === 0 )
 			{
