@@ -1,4 +1,4 @@
-Getter
+Getter done
 ======
 
 getter combines numerous methods of getting html elements, and provides an easy way to filter & manipulate them.
