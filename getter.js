@@ -1,10 +1,12 @@
-/** @preserve getter v0.0.1
+/** @preserve getter v0.0.2
  * 2014 - kevin von flotow
  * MIT license
  */
-;( function ( WIN )
+ ;( function ( WIN )
 	{
 		var DOC = WIN.document
+
+		var LOGGING = true
 
 		// determine which matchesSelector to use once on load
 		var MATCHES = ( function ( DOC_ELEMENT )
@@ -71,6 +73,13 @@
 				// assume string
 				Getter_find.call( this, selector.toString() )
 			}
+		}
+
+		// enable/disable logging
+		Getter.logging = function ( bool )
+		{
+			// make sure bool is a boolean
+			LOGGING = !!bool
 		}
 
 		var targets = [
@@ -229,6 +238,28 @@
 			}
 
 			this.length = 0
+		}
+
+		// sets propertyName to propertyValue for all elements in the instance
+		Getter.prototype.set = function ( propertyName, propertyValue )
+		{
+			if ( this.length === 0 )
+			{
+				return // empty
+			}
+
+			if ( !this[ 0 ].hasOwnProperty( propertyName ) )
+			{
+				return console.log( 'getter: property does not exist' )
+			}
+
+			for ( var i = 0; i < this.length; ++i )
+			{
+				this[ i ][ propertyName ] = propertyValue
+			}
+
+			// chainable
+			return this
 		}
 
 		WIN.Getter = Getter
