@@ -1,0 +1,9 @@
+/*
+ getter v0.0.1
+ 2014 - kevin von flotow
+ MIT license
+*/
+;(function(f){function c(a){if("undefined"===typeof a)return console.log("Getter: selector is not defined");if(!(this instanceof c))return new c(a);this.length=0;if(Array.isArray(a))for(var b=0,d=a.length;b<d;++b)g.call(this,a[b]);else g.call(this,a.toString())}function g(a){if(a.appendChild)this[this.length++]=a;else{a=a.toString();for(var b=[],d=0,c;4>d;++d)c=h[d],c.target&&!a.charAt(0)===c.target||(b=c.fn(a));for(a=b.length;this.length<a;)this[this.length]=b[this.length++]}}var e=f.document,k=function(a){if(a.matches)return"matches";
+if(a.matchesSelector)return"matchesSelector";if(a.webkitMatchesSelector)return"webkitMatchesSelector";if(a.mozMatchesSelector)return"mozMatchesSelector";if(a.msMatchesSelector)return"msMatchesSelector";if(a.oMatchesSelector)return"oMatchesSelector"}(e.documentElement),h=[{target:"#",fn:function(a){var b=[];(a=e.getElementById(a.substr(1)))&&b.push(a);return b}},{target:".",fn:function(a){return e.getElementsByClassName(a.substr(1))}},{target:"[",fn:function(a){return e.querySelectorAll(a.substr(1,
+a.length-1))}},{fn:function(a){return e.getElementsByTagName(a)}}];c.prototype.each=function(a){for(var b=0;b<this.length;++b)a.call(this,this[b],b);return this};c.prototype.exec=function(){var a=arguments;if(0!==a.length){var b=Array.prototype.shift.call(a);if(0!==this.length){if(!this[0][b])return console.log("getter: method does not exist");for(var c=0;c<this.length;++c)this[c][b].apply(this[c],a)}}};c.prototype.filter=function(a){var b=Array.prototype.filter.call(this,function(b){return b[k](a)});
+return new c(b)};c.prototype.remove=function(){for(var a=0,b;a<this.length;++a)b=this[a],b.remove?b.remove():b.parentNode&&b.parentNode.removeChild&&b.parentNode.removeChild(b);this.length=0};f.Getter=c;"undefined"===typeof f.$&&(f.$=c)})(window);
