@@ -32,11 +32,17 @@ the classList object contains methods which map to the native classList methods.
 
 ##### .add( className )
 
-adds the specified class(es) to all elements in the instance.
+adds the specified class(es) to all elements in the instance. `className` can be a string or array. to specify multiple classes, separate them with spaces or pass an array.
 
 ```javascript
 // adds foo class to all div elements
 Getter( 'div' ).classList.add( 'foo' )
+
+// adds foo and bar class to all div elements
+Getter( 'div' ).classList.add( 'foo bar' )
+
+// alternative to above, will execute faster
+Getter( 'div' ).classList.add( [ 'foo', 'bar' ] )
 ```
 
 ##### .contains( className )
@@ -52,20 +58,32 @@ if ( Getter( '#element' ).classList.contains( 'foo' ) )
 
 ##### .remove( className )
 
-removes the speicified class from all elements in the instance.
+removes the speicified class from all elements in the instance. `className` can be a string or array. to specify multiple classes, separate them with spaces or pass an array.
 
 ```javascript
 // removes foo class from all div elements
 Getter( 'div.foo' ).classList.remove( 'foo' )
+
+// removes foo and bar class to all div elements
+Getter( 'div' ).classList.remove( 'foo bar' )
+
+// alternative to above, will execute faster
+Getter( 'div' ).classList.remove( [ 'foo', 'bar' ] )
 ```
 
-##### .toggle( className )
+##### .toggle( className, force )
 
-toggles the specified class in all elements in the instance.
+toggles the specified class in all elements in the instance. `className` can be a string or array. to specify multiple classes, separate them with spaces or pass an array. optional parameter `force` is used to force the class name to be added or removed based on the truthiness.
 
 ```javascript
 // toggles foo class on all div elements
 Getter( 'div' ).classList.toggle( 'foo' )
+
+// toggles foo and bar class to all div elements
+Getter( 'div' ).classList.toggle( 'foo bar' )
+
+// alternative to above, will execute faster
+Getter( 'div' ).classList.toggle( [ 'foo', 'bar' ] )
 ```
 
 ### .each( function )
