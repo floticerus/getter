@@ -52,10 +52,10 @@
 		/** @constructor */
 		function Getter( selector )
 		{
-			if ( typeof selector === 'undefined' )
+			/* if ( typeof selector === 'undefined' )
 			{
 				return console.log( 'Getter: selector is not defined' )
-			}
+			} */
 
 			// allow using Getter without 'new'
 			if ( !( this instanceof Getter ) )
@@ -74,12 +74,13 @@
 				}
 			}
 
-			else
+			else if ( selector )
 			{
 				// assume string
-				Getter_find.call( this, selector.toString() )
+				Getter_find.call( this, selector )
 			}
 
+			// setup class methods for this instance
 			Getter_classes.call( this )
 		}
 
@@ -95,11 +96,13 @@
 			{
 				regex: /^#[-A-Za-z0-9_][-A-Za-z0-9_:.]*$/,
 
-				fn: function ( id )
+				fn: function ( id, base )
 				{
 					var ret = []
 
-					var res = DOC.getElementById( id.substr( 1 ) )
+					// use querySelector instead of querySelectorAll so we only return one element,
+					// since id tag should be unique
+					var res = base ? base.querySelector( id ) : DOC.getElementById( id.substr( 1 ) )
 
 					if ( res )
 					{
@@ -113,31 +116,31 @@
 			{
 				regex: /^\.[-A-Za-z0-9_:.]*$/,
 
-				fn: function ( cls )
+				fn: function ( cls, base )
 				{
-					return DOC.getElementsByClassName( cls.substr( 1 ) )
+					return base.getElementsByClassName( cls.substr( 1 ) )
 				}
 			},
 
 			{
 				regex: /^[A-Za-z][-A-Za-z0-9_:.]*$/,
 
-				fn: function ( tag )
+				fn: function ( tag, base )
 				{
-					return DOC.getElementsByTagName( tag )
+					return base.getElementsByTagName( tag )
 				}
 			},
 
 			// no regex needed for querySelectorAll, just put it last
 			{
-				fn: function ( selector )
+				fn: function ( selector, base )
 				{
-					return DOC.querySelectorAll( selector )
+					return base.querySelectorAll( selector )
 				}
 			}
 		]
 
-		function Getter_find( selector )
+		function Getter_find( selector, base )
 		{
 			// check for html element
 			if ( selector.appendChild )
@@ -146,6 +149,8 @@
 
 				return
 			}
+
+			base = base || DOC
 
 			// make sure selector is a string
 			selector = selector.toString()
@@ -161,7 +166,7 @@
 					continue
 				}
 
-				arr = current.fn( selector )
+				arr = current.fn( selector, base )
 
 				break
 			}
@@ -265,7 +270,7 @@
 
 		Getter.prototype.eq = function ( index )
 		{
-
+			return new Getter( this[ index ] ? this[ index ] : undefined )
 		}
 
 		// executes the given method with provided arguments
@@ -311,6 +316,26 @@
 
 			// return a new Getter object with filtered elements
 			return new Getter( filtered )
+		}
+
+		// finds children elements using provided selector
+		Getter.prototype.find = function ( selector )
+		{
+			if ( this.length === 0 )
+			{
+				return // instance is empty
+			}
+
+			var newGetter = Getter()
+
+			for ( var i = 0; i < this.length; ++i )
+			{
+				// populate new Getter instance with results
+				Getter_find.call( newGetter, selector )
+			}
+
+			// return new Getter instance with results
+			return newGetter
 		}
 
 		// attempt to return first element, if it doesn't exist, return this
