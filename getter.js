@@ -213,12 +213,15 @@
 
 			var methodLength = methodPath.length
 
-			for ( var i = 0, path, useThis, i2; i < this.length; ++i )
+			for ( var i = 0, path, useThis, i2, ret; i < this.length; ++i )
 			{
+				// set initial path
 				path = this[ i ]
 
+				// set initial object to use as this
 				useThis = path
 
+				// set i2 as 0 on each iteration
 				i2 = 0
 
 				for ( ; i2 < methodLength; ++i2 )
@@ -231,14 +234,23 @@
 
 					path = path[ methodPath[ i2 ] ]
 
+					// update useThis if it's not the last item in the array
 					if ( i2 + 1 !== methodLength )
 					{
 						useThis = path
 					}
 
+					// check that the path is valid
 					else if ( path )
 					{
-						path.apply( useThis, args )
+						// apply using useThis as this, pass arguments
+						ret = path.apply( useThis, args )
+
+						// return if truthy? hmmm
+						if ( ret )
+						{
+							return ret
+						}
 					}
 				}
 			}
