@@ -79,9 +79,6 @@
 				// assume string
 				Getter_find.call( this, selector )
 			}
-
-			// setup class methods for this instance
-			Getter_classes.call( this )
 		}
 
 		// enable/disable logging
@@ -177,86 +174,6 @@
 			}
 		}
 
-		function splitClasses( classes, fn )
-		{
-			if ( !Array.isArray( classes ) )
-			{
-				// assume it's a string
-				classes = classes.split( ' ' )
-			}
-
-			for ( var i = 0, l = classes.length; i < l; ++i )
-			{
-				fn( classes[ i ] )
-			}
-		}
-
-		// add class methods to instance
-		// depends on classList being available, polyfill required for older browsers
-		function Getter_classes()
-		{
-			// reference this
-			var that = this
-
-			// define classList object
-			Object.defineProperty( that, 'classList',
-				{
-					// define methods in an object
-					value: {
-						add: function ( className )
-						{
-							splitClasses( className, function ( cls )
-								{
-									for ( var i = 0, classes; i < that.length; ++i )
-									{
-										that[ i ].classList.add( cls )
-									}
-								}
-							)
-						},
-
-						// only works on the first element in the instance
-						contains: function ( className )
-						{
-							if ( !that[ 0 ] )
-							{
-								return false // instance is empty
-							}
-
-							// returns boolean
-							return that[ 0 ].classList.contains( className )
-						},
-
-						remove: function ( className )
-						{
-							splitClasses( className, function ( cls )
-								{
-									for ( var i = 0, classes; i < that.length; ++i )
-									{
-										that[ i ].classList.remove( cls )
-									}
-								}
-							)
-						},
-
-						// from MDN:
-						// The toggle method has an optional second argument that will force the class name to be added or removed based on the truthiness of the second argument. For example, to remove a class (if it exists or not) you can call element.classList.toggle('classToBeRemoved', false); and to add a class (if it exists or not) you can call element.classList.toggle('classToBeAdded', true);
-						toggle: function ( className, force )
-						{
-							splitClasses( className, function ( cls )
-								{
-									for ( var i = 0, classes; i < that.length; ++i )
-									{
-										that[ i ].classList.toggle( cls, force )
-									}
-								}
-							)
-						}
-					}
-				}
-			)
-		}
-
 		Getter.prototype.each = function ( fn )
 		{
 			for ( var i = 0; i < this.length; ++i )
@@ -278,6 +195,11 @@
 		// additional arguments are passed to method
 		Getter.prototype.exec = function ()
 		{
+			if ( this.length === 0 )
+			{
+				return // this Getter instance is empty
+			}
+
 			var args = arguments
 
 			if ( args.length === 0 )
@@ -285,21 +207,40 @@
 				return // must provide at least 1 argument
 			}
 
-			var methodName = Array.prototype.shift.call( args )
+			var arg1 = Array.prototype.shift.call( args )
 
-			if ( this.length === 0 )
-			{
-				return // this Getter instance is empty
-			}
+			var methodPath = arg1.split( ' ' )
 
-			if ( !this[ 0 ][ methodName ] )
-			{
-				return console.log( 'getter: method does not exist' )
-			}
+			var methodLength = methodPath.length
 
-			for ( var i = 0; i < this.length; ++i )
+			for ( var i = 0, path, useThis, i2; i < this.length; ++i )
 			{
-				this[ i ][ methodName ].apply( this[ i ], args )
+				path = this[ i ]
+
+				useThis = path
+
+				i2 = 0
+
+				for ( ; i2 < methodLength; ++i2 )
+				{
+					if ( typeof path[ methodPath[ i2 ] ] === 'undefined' )
+					{
+						// path does not exist
+						break
+					}
+
+					path = path[ methodPath[ i2 ] ]
+
+					if ( i2 + 1 !== methodLength )
+					{
+						useThis = path
+					}
+
+					else if ( path )
+					{
+						path.apply( useThis, args )
+					}
+				}
 			}
 		}
 

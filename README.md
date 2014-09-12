@@ -26,66 +26,6 @@ var divs = $( 'div' )
 
 ## methods
 
-### .classList
-
-the classList object contains methods which map to the native classList methods. relies on some implementation of classList, so older browsers will not work without a polyfill.
-
-##### .add( className )
-
-adds the specified class(es) to all elements in the instance. `className` can be a string or array. to specify multiple classes, separate them with spaces or pass an array.
-
-```javascript
-// adds foo class to all div elements
-Getter( 'div' ).classList.add( 'foo' )
-
-// adds foo and bar class to all div elements
-Getter( 'div' ).classList.add( 'foo bar' )
-
-// alternative to above, will execute faster
-Getter( 'div' ).classList.add( [ 'foo', 'bar' ] )
-```
-
-##### .contains( className )
-
-checks whether the first element in the instance has the specified class.
-
-```javascript
-if ( Getter( '#element' ).classList.contains( 'foo' ) )
-{
-	console.log( 'element has foo class' )
-}
-```
-
-##### .remove( className )
-
-removes the speicified class from all elements in the instance. `className` can be a string or array. to specify multiple classes, separate them with spaces or pass an array.
-
-```javascript
-// removes foo class from all div elements
-Getter( 'div.foo' ).classList.remove( 'foo' )
-
-// removes foo and bar class to all div elements
-Getter( 'div' ).classList.remove( 'foo bar' )
-
-// alternative to above, will execute faster
-Getter( 'div' ).classList.remove( [ 'foo', 'bar' ] )
-```
-
-##### .toggle( className, force )
-
-toggles the specified class in all elements in the instance. `className` can be a string or array. to specify multiple classes, separate them with spaces or pass an array. optional parameter `force` is used to force the class name to be added or removed based on the truthiness.
-
-```javascript
-// toggles foo class on all div elements
-Getter( 'div' ).classList.toggle( 'foo' )
-
-// toggles foo and bar class to all div elements
-Getter( 'div' ).classList.toggle( 'foo bar' )
-
-// alternative to above, will execute faster
-Getter( 'div' ).classList.toggle( [ 'foo', 'bar' ] )
-```
-
 ### .each( function )
 
 iterates over all elements in the Getter instance, executing a function for each element. `element` and `index` are passed to function.
@@ -111,12 +51,16 @@ var fifth = Getter( 'div' ).eq( 4 )
 
 ### .exec( methodName, argument1, argument2, etc )
 
-executes a method on each html element in the Getter instance. Getter checks that the method exists on the first element, then iterates over them all, executing the method with the provided arguments. must provide at least methodName. additional arguments are passed to the method.
+executes a method on each html element in the Getter instance. must provide at least methodName. methodName can be space separated to traverse the object. for instance, you can pass 'classList add' to access element.classList.add(). additional arguments are passed to the method.
 
 ```javascript
 var divs = Getter( 'div' )
 
+// sets data-text attribute
 divs.exec( 'setAttribute', 'data-text', 'i am a div' )
+
+// adds class someclass
+divs.exec( 'classList add', 'someclass' )
 ```
 
 ### .filter( selector )
