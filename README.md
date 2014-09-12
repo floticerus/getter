@@ -146,6 +146,17 @@ var divs = Getter( 'div' )
 var filtered = divs.filter( '[data-text=needle]' )
 ```
 
+### .find( selector )
+
+get children of all elements in this instance that match the provided selector. returns a new Getter instance.
+
+```javascript
+var divs = Getter( 'div' )
+
+// finds all span elements within the divs returned above
+var links = divs.find( 'span' )
+```
+
 ### .first()
 
 attempt to return the first element, if it doesn't exist, return original instance. creates a new Getter instance if successful. returns existing instance if unsuccessful.
