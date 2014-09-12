@@ -102,7 +102,7 @@
 
 					// use querySelector instead of querySelectorAll so we only return one element,
 					// since id tag should be unique
-					var res = base ? base.querySelector( id ) : DOC.getElementById( id.substr( 1 ) )
+					var res = base === DOC ? DOC.getElementById( id.substr( 1 ) ) : base.querySelector( id )
 
 					if ( res )
 					{
