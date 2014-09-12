@@ -1,4 +1,4 @@
-/** @preserve getter v0.0.2
+/** @preserve getter v0.0.3
  * 2014 - kevin von flotow
  * MIT license
  */
