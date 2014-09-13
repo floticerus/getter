@@ -1,4 +1,4 @@
-/** @preserve getter v0.0.3
+/** @preserve getter v0.0.4
  * 2014 - kevin von flotow
  * MIT license
  */
@@ -211,20 +211,19 @@
 
 			var methodPath = arg1.split( ' ' )
 
-			var methodLength = methodPath.length
+			// subtract 1 from length because we're handling the last item after the loop
+			var methodLength = methodPath.length - 1
 
-			for ( var i = 0, path, useThis, i2, ret; i < this.length; ++i )
+			for ( var i = 0, path, useThis, i2, res; i < this.length; ++i )
 			{
 				// set initial path
 				path = this[ i ]
 
 				// set initial object to use as this
 				useThis = path
-
+				
 				// set i2 as 0 on each iteration
-				i2 = 0
-
-				for ( ; i2 < methodLength; ++i2 )
+				for ( i2 = 0; i2 < methodLength; ++i2 )
 				{
 					if ( typeof path[ methodPath[ i2 ] ] === 'undefined' )
 					{
@@ -232,26 +231,17 @@
 						break
 					}
 
-					path = path[ methodPath[ i2 ] ]
-
 					// update useThis if it's not the last item in the array
-					if ( i2 + 1 !== methodLength )
-					{
-						useThis = path
-					}
+					path = useThis = path[ methodPath[ i2 ] ]
+				}
 
-					// check that the path is valid
-					else if ( path )
-					{
-						// apply using useThis as this, pass arguments
-						ret = path.apply( useThis, args )
+				// grab the last path
+				path = path[ methodPath[ methodLength ] ]
 
-						// return if truthy? hmmm
-						if ( ret )
-						{
-							return ret
-						}
-					}
+				// return if result is truthy
+				if ( path && ( res = path.apply( useThis, args ) ) )
+				{
+					return res
 				}
 			}
 		}
@@ -337,6 +327,7 @@
 		}
 
 		// sets propertyName to propertyValue for all elements in the instance
+		// use spaces in propertyName to traverse the object
 		Getter.prototype.set = function ( propertyName, propertyValue )
 		{
 			if ( this.length === 0 )
@@ -344,14 +335,26 @@
 				return // empty
 			}
 
-			if ( !this[ 0 ].hasOwnProperty( propertyName ) )
-			{
-				return console.log( 'getter: property does not exist' )
-			}
+			propertyName = propertyName.split( ' ' )
 
-			for ( var i = 0; i < this.length; ++i )
+			var propertyLength = propertyName.length - 1
+
+			for ( var i = 0, path, i2; i < this.length; ++i )
 			{
-				this[ i ][ propertyName ] = propertyValue
+				path = this[ i ]
+
+				for ( i2 = 0; i2 < propertyLength; ++i2 )
+				{
+					if ( typeof path[ propertyName[ i2 ] ] === 'undefined' )
+					{
+						// path does not exist
+						break
+					}
+
+					path = path[ propertyName[ i2 ] ]
+				}
+
+				path[ propertyName[ propertyLength ] ] = propertyValue
 			}
 
 			// chainable

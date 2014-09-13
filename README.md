@@ -145,12 +145,16 @@ divs.remove()
 
 ### .set( propertyName, propertyValue )
 
-sets the property `propertyName` to `propertyValue` for all elements in the instance. Getter checks that the property exists on the first element, then iterates over them all.
+sets the property `propertyName` to `propertyValue` for all elements in the instance. use spaces in `propertyName` to traverse the object. for instance, you can pass 'style display' to access element.style.display
 
 ```javascript
 var divs = Getter( 'div' )
 
+// sets html to foo
 divs.set( 'innerHTML', 'foo' )
+
+// sets display to none
+divs.set( 'style display', 'none' )
 ```
 
 ## license
