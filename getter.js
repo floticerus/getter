@@ -6,8 +6,6 @@
 	{
 		var DOC = WIN.document
 
-		var LOGGING = true
-
 		// determine which matchesSelector to use once on load
 		// if else if else compiles smaller than a bunch of ifs
 		var MATCHES = ( function ( DOC_ELEMENT )
@@ -52,11 +50,6 @@
 		/** @constructor */
 		function Getter( selector )
 		{
-			/* if ( typeof selector === 'undefined' )
-			{
-				return console.log( 'Getter: selector is not defined' )
-			} */
-
 			// allow using Getter without 'new'
 			if ( !( this instanceof Getter ) )
 			{
@@ -79,13 +72,6 @@
 				// assume string
 				Getter_find.call( this, selector )
 			}
-		}
-
-		// enable/disable logging
-		Getter.logging = function ( bool )
-		{
-			// make sure bool is a boolean
-			LOGGING = !!bool
 		}
 
 		// define regular expressions
@@ -174,191 +160,193 @@
 			}
 		}
 
-		Getter.prototype.each = function ( fn )
-		{
-			for ( var i = 0; i < this.length; ++i )
+		Getter.prototype = {
+			each: function ( fn )
 			{
-				fn.call( this, this[ i ], i )
-			}
-
-			// chainable
-			return this
-		}
-
-		Getter.prototype.eq = function ( index )
-		{
-			return new Getter( this[ index ] ? this[ index ] : undefined )
-		}
-
-		// executes the given method with provided arguments
-		// first argument is the method name (string),
-		// additional arguments are passed to method
-		Getter.prototype.exec = function ()
-		{
-			if ( this.length === 0 )
-			{
-				return // this Getter instance is empty
-			}
-
-			var args = arguments
-
-			if ( args.length === 0 )
-			{
-				return // must provide at least 1 argument
-			}
-
-			var arg1 = Array.prototype.shift.call( args )
-
-			var methodPath = arg1.split( ' ' )
-
-			// subtract 1 from length because we're handling the last item after the loop
-			var methodLength = methodPath.length - 1
-
-			for ( var i = 0, path, useThis, i2, res; i < this.length; ++i )
-			{
-				// set initial path
-				path = this[ i ]
-
-				// set initial object to use as this
-				useThis = path
-				
-				// set i2 as 0 on each iteration
-				for ( i2 = 0; i2 < methodLength; ++i2 )
+				for ( var i = 0; i < this.length; ++i )
 				{
-					if ( typeof path[ methodPath[ i2 ] ] === 'undefined' )
+					fn.call( this, this[ i ], i )
+				}
+
+				// chainable
+				return this
+			},
+
+			eq: function ( index )
+			{
+				return new Getter( this[ index ] ? this[ index ] : undefined )
+			},
+
+			// executes the given method with provided arguments
+			// first argument is the method name (string),
+			// additional arguments are passed to method
+			exec: function ()
+			{
+				if ( this.length === 0 )
+				{
+					return // this Getter instance is empty
+				}
+
+				var args = arguments
+
+				if ( args.length === 0 )
+				{
+					return // must provide at least 1 argument
+				}
+
+				var arg1 = Array.prototype.shift.call( args )
+
+				var methodPath = arg1.split( ' ' )
+
+				// subtract 1 from length because we're handling the last item after the loop
+				var methodLength = methodPath.length - 1
+
+				for ( var i = 0, path, useThis, i2, res; i < this.length; ++i )
+				{
+					// set initial path
+					path = this[ i ]
+
+					// set initial object to use as this
+					useThis = path
+					
+					// set i2 as 0 on each iteration
+					for ( i2 = 0; i2 < methodLength; ++i2 )
 					{
-						// path does not exist
-						break
+						if ( typeof path[ methodPath[ i2 ] ] === 'undefined' )
+						{
+							// path does not exist
+							break
+						}
+
+						// update useThis if it's not the last item in the array
+						path = useThis = path[ methodPath[ i2 ] ]
 					}
 
-					// update useThis if it's not the last item in the array
-					path = useThis = path[ methodPath[ i2 ] ]
-				}
+					// grab the last path
+					path = path[ methodPath[ methodLength ] ]
 
-				// grab the last path
-				path = path[ methodPath[ methodLength ] ]
-
-				// return if result is truthy
-				if ( path && ( res = path.apply( useThis, args ) ) )
-				{
-					return res
-				}
-			}
-		}
-
-		// creates a new Getter instance
-		Getter.prototype.filter = function ( selector )
-		{
-			for ( var i = 0, filtered = []; i < this.length; ++i )
-			{
-				if ( this[ i ][ MATCHES ]( selector ) )
-				{
-					filtered.push( this[ i ] )
-				}
-			}
-
-			// return a new Getter object with filtered elements
-			return new Getter( filtered )
-		}
-
-		// finds children elements using provided selector
-		Getter.prototype.find = function ( selector )
-		{
-			if ( this.length === 0 )
-			{
-				return // instance is empty
-			}
-
-			var newGetter = Getter()
-
-			for ( var i = 0; i < this.length; ++i )
-			{
-				// populate new Getter instance with results
-				Getter_find.call( newGetter, selector )
-			}
-
-			// return new Getter instance with results
-			return newGetter
-		}
-
-		// attempt to return first element, if it doesn't exist, return this
-		// creates a new Getter instance if successful
-		// returns existing instance if unsuccessful
-		Getter.prototype.first = function ()
-		{
-			return this[ 0 ] ? new Getter( this[ 0 ] ) : this
-		}
-
-		// only operates on the first element in the instance
-		// does not create a new instance
-		// returns boolean
-		Getter.prototype.is = function ( selector )
-		{
-			return this[ 0 ] ? this[ 0 ][ MATCHES ]( selector ) : false
-		}
-
-		// attempt to return last element, if it doesn't exist, return this
-		// creates a new Getter instance if succesful
-		// returns existing instance if unsuccessful
-		Getter.prototype.last = function ()
-		{
-			return this[ 0 ] ? new Getter( this[ this.length - 1 ] ) : this
-		}
-
-		// provide convenience remove method
-		Getter.prototype.remove = function ()
-		{
-			for ( var i = 0, current; i < this.length; ++i )
-			{
-				current = this[ i ]
-
-				if ( current.remove )
-				{
-					current.remove()
-				}
-
-				else if ( current.parentNode && current.parentNode.removeChild )
-				{
-					current.parentNode.removeChild( current )
-				}
-			}
-
-			this.length = 0
-		}
-
-		// sets propertyName to propertyValue for all elements in the instance
-		// use spaces in propertyName to traverse the object
-		Getter.prototype.set = function ( propertyName, propertyValue )
-		{
-			if ( this.length === 0 )
-			{
-				return // empty
-			}
-
-			propertyName = propertyName.split( ' ' )
-
-			var propertyLength = propertyName.length - 1
-
-			for ( var i = 0, path, i2; i < this.length; ++i )
-			{
-				path = this[ i ]
-
-				for ( i2 = 0; i2 < propertyLength; ++i2 )
-				{
-					if ( typeof path[ propertyName[ i2 ] ] === 'undefined' )
+					// return if result is truthy
+					if ( path && ( res = path.apply( useThis, args ) ) )
 					{
-						// path does not exist
-						break
+						return res
+					}
+				}
+			},
+
+			// creates a new Getter instance
+			filter: function ( selector )
+			{
+				for ( var i = 0, filtered = []; i < this.length; ++i )
+				{
+					if ( this[ i ][ MATCHES ]( selector ) )
+					{
+						filtered.push( this[ i ] )
+					}
+				}
+
+				// return a new Getter object with filtered elements
+				return new Getter( filtered )
+			},
+
+			// finds children elements using provided selector
+			find: function ( selector )
+			{
+				if ( this.length === 0 )
+				{
+					return // instance is empty
+				}
+
+				var newGetter = Getter()
+
+				for ( var i = 0; i < this.length; ++i )
+				{
+					// populate new Getter instance with results
+					Getter_find.call( newGetter, selector )
+				}
+
+				// return new Getter instance with results
+				return newGetter
+			},
+
+			// attempt to return first element, if it doesn't exist, return this
+			// creates a new Getter instance if successful
+			// returns existing instance if unsuccessful
+			first: function ()
+			{
+				return this[ 0 ] ? new Getter( this[ 0 ] ) : this
+			},
+
+			// only operates on the first element in the instance
+			// does not create a new instance
+			// returns boolean
+			is: function ( selector )
+			{
+				return this[ 0 ] ? this[ 0 ][ MATCHES ]( selector ) : false
+			},
+
+			// attempt to return last element, if it doesn't exist, return this
+			// creates a new Getter instance if succesful
+			// returns existing instance if unsuccessful
+			last: function ()
+			{
+				return this[ 0 ] ? new Getter( this[ this.length - 1 ] ) : this
+			},
+
+			// provide convenience remove method
+			remove: function ()
+			{
+				for ( var i = 0, current; i < this.length; ++i )
+				{
+					current = this[ i ]
+
+					if ( current.remove )
+					{
+						current.remove()
 					}
 
-					path = path[ propertyName[ i2 ] ]
+					else if ( current.parentNode && current.parentNode.removeChild )
+					{
+						current.parentNode.removeChild( current )
+					}
 				}
 
-				path[ propertyName[ propertyLength ] ] = propertyValue
-			}
+				this.length = 0
+			},
 
-			// chainable
-			return this
+			// sets propertyName to propertyValue for all elements in the instance
+			// use spaces in propertyName to traverse the object
+			set: function ( propertyName, propertyValue )
+			{
+				if ( this.length === 0 )
+				{
+					return // empty
+				}
+
+				propertyName = propertyName.split( ' ' )
+
+				var propertyLength = propertyName.length - 1
+
+				for ( var i = 0, path, i2; i < this.length; ++i )
+				{
+					path = this[ i ]
+
+					for ( i2 = 0; i2 < propertyLength; ++i2 )
+					{
+						if ( typeof path[ propertyName[ i2 ] ] === 'undefined' )
+						{
+							// path does not exist
+							break
+						}
+
+						path = path[ propertyName[ i2 ] ]
+					}
+
+					path[ propertyName[ propertyLength ] ] = propertyValue
+				}
+
+				// chainable
+				return this
+			}
 		}
 
 		WIN.Getter = Getter
