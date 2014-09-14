@@ -1,53 +1,33 @@
-/** @preserve getter v0.0.4
- * 2014 - kevin von flotow
- * MIT license
- */
- ;( function ( WIN )
+/** @preserve
+ * @namespace getterjs
+ * @version 0.0.5
+ * @author kevin von flotow
+ * 2014 - MIT license */
+;( function ( WIN )
 	{
 		var DOC = WIN.document
 
 		// determine which matchesSelector to use once on load
 		// if else if else compiles smaller than a bunch of ifs
-		var MATCHES = ( function ( DOC_ELEMENT )
+		var MATCHES = ( function ( DOC_ELEMENT, m )
 			{
-				if ( DOC_ELEMENT.matches )
+				for ( var i = 0; i < 6; ++i )
 				{
-					return 'matches'
-				}
-
-				else if ( DOC_ELEMENT.matchesSelector )
-				{
-					return 'matchesSelector'
-				}
-
-				else if ( DOC_ELEMENT.webkitMatchesSelector )
-				{
-					return 'webkitMatchesSelector'
-				}
-
-				else if ( DOC_ELEMENT.mozMatchesSelector )
-				{
-					return 'mozMatchesSelector'
-				}
-
-				else if ( DOC_ELEMENT.msMatchesSelector )
-				{
-					return 'msMatchesSelector'
-				}
-
-				else if ( DOC_ELEMENT.oMatchesSelector )
-				{
-					return 'oMatchesSelector'
-				}
-
-				else
-				{
-					return false
+					if ( DOC_ELEMENT[ m ] )
+					{
+						return m
+					}
 				}
 			}
-		)( DOC.documentElement );
+		)( DOC.documentElement, [ 'matches', 'matchesSelector', 'webkitMatchesSelector', 'mozMatchesSelector', 'msMatchesSelector', 'oMatchesSelector' ] );
 
-		/** @constructor */
+		/**
+		 * @namespace Getter
+		 * @constructor
+		 * @this {Getter}
+		 * @param {*} selector - selector to search for, or html element(s)
+		 * @returns {Getter}
+		 */
 		function Getter( selector )
 		{
 			// allow using Getter without 'new'
@@ -161,6 +141,17 @@
 		}
 
 		Getter.prototype = {
+			/**
+			 * iterates over all elements in the Getter instance,
+			 * executing a function for each element.
+			 * element and index are passed to function.
+			 * 
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @param {Function} fn - function to run on each iteration. gets element and index parameters
+			 * @returns {Getter} new instance. chainable.
+			 */
 			each: function ( fn )
 			{
 				for ( var i = 0; i < this.length; ++i )
@@ -172,20 +163,36 @@
 				return this
 			},
 
+			/**
+			 * attempts to return the element at the provided index in a new Getter instance. if it does not exist, returns a new empty Getter instance. index starts at 0.
+			 * 
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @param {Number} index - index of the element to look for
+			 * @returns {Getter} new instance
+			 */
 			eq: function ( index )
 			{
 				return new Getter( this[ index ] ? this[ index ] : undefined )
 			},
 
-			// executes the given method with provided arguments
-			// first argument is the method name (string),
-			// additional arguments are passed to method
+			/**
+			 * executes the given method on all elements with provided arguments.
+			 * 
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @param {String} methodPath - path to the method to execute. space separated to traverse.
+			 * @param {*} [arguments] - additional arguments to pass to the method
+			 * @returns {*} returns if a truthy value is returned from the method.
+			 */
 			exec: function ()
 			{
-				if ( this.length === 0 )
+				/* if ( this.length === 0 )
 				{
 					return // this Getter instance is empty
-				}
+				} */
 
 				var args = arguments
 
@@ -233,7 +240,16 @@
 				}
 			},
 
-			// creates a new Getter instance
+			/**
+			 * filter the Getter instance with the provided CSS selector.
+			 * relies on some implementation of matchesSelector,
+			 * so this will not work on older browsers unless a polyfill is available.
+			 *
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @returns {Getter} new instance.
+			 */
 			filter: function ( selector )
 			{
 				for ( var i = 0, filtered = []; i < this.length; ++i )
@@ -248,13 +264,22 @@
 				return new Getter( filtered )
 			},
 
-			// finds children elements using provided selector
+			/**
+			 * get children of all elements in this instance that match the selector.
+			 * returns a new Getter instance.
+			 *
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @param {String} selector - selector to search for
+			 * @returns {Getter} this instance. chainable.
+			 */
 			find: function ( selector )
 			{
-				if ( this.length === 0 )
+				/* if ( this.length === 0 )
 				{
 					return // instance is empty
-				}
+				} */
 
 				var newGetter = Getter()
 
@@ -268,31 +293,55 @@
 				return newGetter
 			},
 
-			// attempt to return first element, if it doesn't exist, return this
-			// creates a new Getter instance if successful
-			// returns existing instance if unsuccessful
+			/**
+			 * attempt to return first element in the instance.
+			 *
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @returns {Getter} new instance if successful, existing if unsuccesful.
+			 */
 			first: function ()
 			{
 				return this[ 0 ] ? new Getter( this[ 0 ] ) : this
 			},
 
-			// only operates on the first element in the instance
-			// does not create a new instance
-			// returns boolean
+			/**
+			 * only operates on the first element in the instance.
+			 * does not create a new instance. returns boolean.
+			 *
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @param {String} selector - selector to test
+			 * @returns {Boolean}
+			 */
 			is: function ( selector )
 			{
 				return this[ 0 ] ? this[ 0 ][ MATCHES ]( selector ) : false
 			},
 
-			// attempt to return last element, if it doesn't exist, return this
-			// creates a new Getter instance if succesful
-			// returns existing instance if unsuccessful
+			/**
+			 * attempt to return last element, if it doesn't exist, return this.
+			 *
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @returns {Getter} new instance if successful, existing if unsuccesful.
+			 */
 			last: function ()
 			{
 				return this[ 0 ] ? new Getter( this[ this.length - 1 ] ) : this
 			},
 
-			// provide convenience remove method
+			/**
+			 * provide convenience remove method
+			 *
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @returns nothing.
+			 */
 			remove: function ()
 			{
 				for ( var i = 0, current; i < this.length; ++i )
@@ -313,14 +362,28 @@
 				this.length = 0
 			},
 
-			// sets propertyName to propertyValue for all elements in the instance
-			// use spaces in propertyName to traverse the object
+			/**
+			 * sets the property propertyName to propertyValue for all
+			 * elements in the instance. use spaces in propertyName to
+			 * traverse the object. for instance, you can pass
+			 * 'style display' to access element.style.display.
+			 *
+			 * @memberof Getter
+			 * @instance
+			 * @this {Getter}
+			 * @param {String} propertyName - property name to set. space separated to traverse.
+			 * @param {*} propertyValue - new value to set.
+			 * @returns {Getter} this instance.
+			 */
 			set: function ( propertyName, propertyValue )
 			{
-				if ( this.length === 0 )
+				// not sure if it's safe to assume the instance isn't empty, might
+				// be a performance hog if it doesn't return immediately
+				/* if ( this.length === 0 )
 				{
-					return // empty
-				}
+					// chainable
+					return this // empty
+				} */
 
 				propertyName = propertyName.split( ' ' )
 
